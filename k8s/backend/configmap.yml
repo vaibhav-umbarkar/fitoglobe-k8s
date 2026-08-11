@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: fitoglobe
+
+data:
+  NODE_ENV: "development"
+  PORT: "5000"
+  FRONTEND_URL: "http://fitoglobe.local:8081"

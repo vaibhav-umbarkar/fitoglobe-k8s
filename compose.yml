@@ -1,0 +1,57 @@
+services:
+  frontend:
+    image: fitfrontend:latest
+    ports:
+      - "5773:80"
+    depends_on:
+      - backend
+    networks:
+      - fitnetwork
+
+  backend:
+    image: fitbackend:latest
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      FRONTEND_URL: http://localhost:5773
+
+      DATABASE_URL: postgresql://fitoglobe:fitoglobe@postgres:5432/fitoglobe
+      DIRECT_URL: postgresql://fitoglobe:fitoglobe@postgres:5432/fitoglobe
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - fitnetwork
+
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fitoglobe
+      POSTGRES_PASSWORD: fitoglobe
+      POSTGRES_DB: fitoglobe
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fitoglobe -d fitoglobe"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - fitnetwork
+
+networks:
+  fitnetwork:
+    driver: bridge
+
+volumes:
+  postgres_data:  
